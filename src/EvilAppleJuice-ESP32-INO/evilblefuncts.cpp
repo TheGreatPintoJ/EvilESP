@@ -1,4 +1,5 @@
 #include "evilblefuncts.h"
+#include "devices.h"
 
 int delayMilliseconds = 1000;
 
@@ -9,7 +10,7 @@ void EvilJuiceSetup(){
 
   // Increase the BLE Power to 21dBm (MAX)
   // https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/api-reference/bluetooth/controller_vhci.html
-  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, MAX_TX_POWER);
+  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P21);
   
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();
@@ -107,14 +108,14 @@ void EvilJuiceLoop(){
   // Random signal strength increases the difficulty of tracking the signal
   int rand_val = random(100);  // Generate a random number between 0 and 99
   if (rand_val < 70) {  // 70% probability
-      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, MAX_TX_POWER);
+      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P21);
   } else if (rand_val < 85) {  // 15% probability
-      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(MAX_TX_POWER - 1));
+      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(ESP_PWR_LVL_P21 - 1));
   } else if (rand_val < 95) {  // 10% probability
-      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(MAX_TX_POWER - 2));
+      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(ESP_PWR_LVL_P21 - 2));
   } else if (rand_val < 99) {  // 4% probability
-      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(MAX_TX_POWER - 3));
+      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(ESP_PWR_LVL_P21 - 3));
   } else {  // 1% probability
-      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(MAX_TX_POWER - 4));
+      esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, (esp_power_level_t)(ESP_PWR_LVL_P21 - 4));
   }
 }

@@ -1,10 +1,13 @@
 #include "serialreader.h"
 
+bool serialStringComplete = false;
+String serialInputString = "";
+
 void serialCommandRead(){
-  if (stringComplete) {
-    serialHandleCommand(inputString);
-    inputString = "";
-    stringComplete = false;
+  if (serialStringComplete) {
+    serialHandleCommand(serialInputString);
+    serialInputString = "";
+    serialStringComplete = false;
   } else {
     if(Serial.available()){
       char inChar = (char)Serial.read();
@@ -17,7 +20,7 @@ void serialCommandRead(){
   }
 }
 
-void serialHandleCommand(String inputCMD){
+void serialHandleCommand(std::tring inputCMD){
   switch (inputCMD) {
     case "reboot":
       Serial.println("Rebooting...");

@@ -24,7 +24,7 @@ void serialCommandRead(){
 void serialHandleCommand(String inputCMD){
   inputCMD.replace("\n", "");
   inputCMD.replace("\r", "");
-  if (inputCMD == "reboot") {
+  if (inputCMD == "reboot" || inputCMD == "restart") {
     Serial.println("Rebooting...");
     ESP.restart();
   } else if (inputCMD == "blespam stop") {

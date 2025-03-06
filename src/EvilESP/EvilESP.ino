@@ -3,6 +3,10 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <esp_arduino_version.h>
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <NetworkUdp.h>
+#include <ArduinoOTA.h>
 
 #include "devices.h"
 #include "evilblefuncts.h"
@@ -16,9 +20,10 @@ void setup() {
 }
 
 void loop() {
+  ArduinoOTA.handle();
   serialCommandRead();
 
-  if(BLESpamActive){
+  if (BLESpamActive) {
     EvilJuiceLoop();
   }
 }

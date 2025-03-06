@@ -2,6 +2,7 @@
 
 bool serialStringComplete = false;
 String serialInputString = "";
+bool BLESpamActive = false;
 
 void serialCommandRead(){
   if (serialStringComplete) {
@@ -20,29 +21,26 @@ void serialCommandRead(){
   }
 }
 
-void serialHandleCommand(std::tring inputCMD){
-  switch (inputCMD) {
-    case "reboot":
-      Serial.println("Rebooting...");
-      ESP.restart();
-      break;
-    case "blespam stop":
+void serialHandleCommand(String inputCMD){
+  inputCMD.replace("\n", "");
+  inputCMD.replace("\r", "");
+  if (inputCMD == "reboot") {
+    Serial.println("Rebooting...");
+    ESP.restart();
+  } else if (inputCMD == "blespam stop") {
       Serial.println("Stopping BLE Spam...");
       BLESpamActive = false;
-      break;
-    case "blespam start":
+  } else if (inputCMD == "blespam start") {
       Serial.println("Starting BLE Spam...");
       BLESpamActive = true;
-      break;
-    case "blespam help":
+  } else if (inputCMD == "blespam help") {
       Serial.println("BLESpam help");
       Serial.println("blespam [ start | stop ]");
-    case "help":
+  } else if (inputCMD == "help") {
       Serial.println("Valid commands:");
       Serial.println("blespam   reboot   help");
-    default:
+  } else {
       Serial.println("Unknown command: " + inputCMD);
       Serial.println("Type 'help' for a list of valid commands");
-      break;
   }
 }

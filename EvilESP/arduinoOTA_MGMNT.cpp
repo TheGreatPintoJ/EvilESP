@@ -1,6 +1,7 @@
 #include "arduinoOTA_MGMNT.h"
 
 void setupOTAUpdate(){
+  Serial.print("Started OTA setup...");
   ArduinoOTA
     .onStart([]() {
       String type;
@@ -36,7 +37,7 @@ void setupOTAUpdate(){
 
   ArduinoOTA.begin();
 
-  Serial.println("Ready");
+  Serial.println(" finished.");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }

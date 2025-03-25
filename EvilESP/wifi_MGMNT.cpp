@@ -3,7 +3,7 @@
 
 #define HOSTNAME "ESP32S3"
 
-bool FORCE_USE_HOTSPOT = true;
+bool FORCE_USE_HOTSPOT = false;
 
 void connectWifi() {
   int connect_timeout;
@@ -22,11 +22,7 @@ void connectWifi() {
     EEPROM.end();
 
     //Try to connect with stored credentials, fire up an access point if they don't work.
-    #if defined(ESP32)
-        WiFi.begin(stored_ssid.c_str(), stored_pass.c_str());
-    #else
-        WiFi.begin(stored_ssid, stored_pass);
-    #endif
+    WiFi.begin(stored_ssid.c_str(), stored_pass.c_str());
     connect_timeout = 28;  //7 seconds
     while (WiFi.status() != WL_CONNECTED && connect_timeout > 0) {
       delay(250);

@@ -1,5 +1,5 @@
-#ifndef ARDUINOOTA_H
-#define ARDUINOOTA_H
+#ifndef ARDUINOOTA_MGMNT_H
+#define ARDUINOOTA_MGMNT_H
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -7,6 +7,6 @@
 #include <NetworkUdp.h>
 #include <ArduinoOTA.h>
 
-void setupOTA();
+void setupOTAUpdate();
 
 #endif

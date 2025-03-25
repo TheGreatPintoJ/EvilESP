@@ -1,6 +1,6 @@
-#include "arduinoOTA.h"
+#include "arduinoOTA_MGMNT.h"
 
-void setupOTA(){
+void setupOTAUpdate(){
   ArduinoOTA
     .onStart([]() {
       String type;

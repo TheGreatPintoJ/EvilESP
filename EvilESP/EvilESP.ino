@@ -11,15 +11,15 @@
 #include "devices.h"
 #include "evilblefuncts.h"
 #include "serialreader.h"
-#include "arduinoOTA.h"
+#include "arduinoOTA_MGMNT.h"
 #include "wifi_MGMNT.h"
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Starting ESP32");
 
-  setupOTA();
   connectWifi();
+  setupOTAUpdate();
 
   EvilJuiceSetup();
 }

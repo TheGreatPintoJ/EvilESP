@@ -6,5 +6,6 @@ void readStringFromEEPROM(String& buf, int baseaddress, int size) {
 		char c = EEPROM.read(i);
 		buf += c;
 		if(!c) break;
-	}	
+	}
+  //Serial.println("Read string \"" + buf + "\" from EEPROM");
 }

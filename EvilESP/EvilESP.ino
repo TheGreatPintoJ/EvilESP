@@ -25,13 +25,7 @@ void setup() {
   connectWifi();
   setupOTAUpdate();
 
-  while (WiFi.status() != WL_CONNECTED) {
-        delay(100);
-    }
-  Serial.println("WiFi Connected");
-  delay(2000);
   setUpESPUI();
-  //ESPUI.begin("EvilESP");
 
   EvilJuiceSetup();
 }

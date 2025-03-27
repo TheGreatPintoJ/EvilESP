@@ -34,6 +34,10 @@ void connectWifi() {
     startAP(hotspot_ssid, hotspot_pass);
   }
 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(100);
+  }
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" Wifi started");
 

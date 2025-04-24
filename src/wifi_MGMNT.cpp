@@ -4,6 +4,8 @@
 
 #define HOSTNAME "ESP32S3"
 
+Preferences preferences;
+
 bool interfaceAP;
 
 const int CONNECT_TIMEOUT = 10000;  // 10 seconds timeout
@@ -34,17 +36,14 @@ void startAP(const String& ap_ssid, const String& ap_pass) {
 void connectWiFi() {
     String ssid = "", pass = "";
 
-    //FORCE_USE_HOTSPOT = EEPROM.readBool(100);
+    preferences.begin("wifi", true);
 
-    readStringFromEEPROM(ssid, 0, 32);
-    readStringFromEEPROM(pass, 33, 97);
+    ssid = preferences.getString("ssid", "");
+    pass = preferences.getString("password", "");
 
-    //pass = EEPROM.readString(33);
+    preferences.end();
 
-    //pass.reserve(64);
-    //for(int j = 0; j < EEPROM.length(); j++) {char c = EEPROM.read(j); if(j < 34 || j > 97) c = ' '; pass += c; delay(50);}
-    //pass.replace(" ", "");
-    Serial.println("Read string from EEPROM (pass): " + pass);
+    Serial.println("Read string from Preferences (pass): " + pass);
 
     if(!FORCE_USE_HOTSPOT){
         Serial.println("Attempting to connect to WiFi...");
@@ -72,4 +71,5 @@ void connectWiFi() {
         startAP(HOTSPOT_SSID, HOTSPOT_PASS);
         interfaceAP = true;
     }
+    digitalWrite(LED_BUILTIN, LOW);
 }

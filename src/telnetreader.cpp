@@ -7,6 +7,8 @@
 #include "bleutils.h"
 #include "deauth/deauth.h"
 
+Preferences preferences;
+
 bool stringComplete = false;
 String telnetString = "";
 
@@ -113,7 +115,10 @@ void telnetHandleCommand(String inputCMD){
         FORCE_USE_HOTSPOT = !FORCE_USE_HOTSPOT;
         TelnetStream.print("Toggling forceHotspot... value now ");
         TelnetStream.println(FORCE_USE_HOTSPOT ? "true" : "false");
-        EEPROM.writeBool(100, FORCE_USE_HOTSPOT);
+
+        preferences.begin("settings", false);
+        preferences.putBool("forceHotspot", FORCE_USE_HOTSPOT);
+        preferences.end();
     } else if (inputCMD.startsWith("wifi")){
         if(inputCMD == "wifi scan"){
             TelnetStream.println("Scanning for WiFi networks...");

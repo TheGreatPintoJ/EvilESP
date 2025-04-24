@@ -8,6 +8,8 @@ bool serialStringComplete = false;
 String serialInputString = "";
 bool BLESpamActive = false;
 
+Preferences preferences;
+
 void waitForChar(char waitChar, unsigned long timeoutMs);
 
 void serialCommandRead(){
@@ -41,7 +43,10 @@ void serialHandleCommand(String inputCMD){
       FORCE_USE_HOTSPOT = !FORCE_USE_HOTSPOT;
       Serial.print("Toggling forceHotspot... value now ");
       Serial.println(FORCE_USE_HOTSPOT ? "true" : "false");
-      EEPROM.writeBool(100, FORCE_USE_HOTSPOT);
+
+      preferences.begin("settings", false);
+      preferences.putBool("forceHotspot", FORCE_USE_HOTSPOT);
+      preferences.end();
     } else if(inputCMD == "OVERWRITEALLEEPROM"){
       OVERWRITEALLEEPROM();
     } else if (inputCMD.startsWith("wifi")){
@@ -53,7 +58,11 @@ void serialHandleCommand(String inputCMD){
           } else {
               Serial.print("Found "); Serial.print(numNetworks); Serial.println(" networks:");
               for(int i = 0; i < numNetworks; i++){
+                if(WiFi.SSID(i)){
                   Serial.print(i); Serial.print(": "); Serial.print(WiFi.SSID(i)); Serial.print(" ("); Serial.print(WiFi.BSSIDstr(i)); Serial.println(")");
+                } else {
+                  Serial.print(i); Serial.print(": "); Serial.print(WiFi.BSSIDstr(i));
+                }
               }
           }
       } else {

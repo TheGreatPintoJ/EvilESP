@@ -2,7 +2,7 @@
 #define ESPUI_FUNCTS_H
 
 #include <Arduino.h>
-#include <EEPROM.h>
+#include <Preferences.h>
 #include <ESPUI.h>
 
 #include <WiFi.h>

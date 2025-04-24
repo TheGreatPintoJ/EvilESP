@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
-#include <EEPROM.h>
+#include <Preferences.h>
 
 extern bool interfaceAP;
 

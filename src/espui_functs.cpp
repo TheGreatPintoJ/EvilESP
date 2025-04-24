@@ -5,6 +5,8 @@
 #include "bleutils.h"
 #include "deauth/deauth.h"
 
+Preferences preferences;
+
 uint16_t wifi_ssid_text, wifi_pass_text;
 uint16_t mainLabel, mainSwitcher, mainSlider, mainText, mainNumber, mainScrambleButton, mainTime;
 uint16_t styleButton, styleLabel, styleSwitcher, styleSlider, styleButton2, styleLabel2, styleSlider2;
@@ -146,7 +148,9 @@ void stopDeauthCallback(Control *sender, int type){
 }
 
 void setForceHotspot(bool value){
-	EEPROM.begin(100); EEPROM.writeBool(100, value); EEPROM.end();
+	preferences.begin("settings", false);
+	preferences.putBool("forceHotspot", value);
+	preferences.end();
 }
 
 void setForceHotspotCallback(Control *sender, int type){
@@ -257,27 +261,24 @@ void extendedCallback(Control* sender, int type, void* param){
 
 void enterWifiDetailsCallback(Control *sender, int type){
 	if(type == B_UP) {
-		Serial.println("Saving credentials to EPROM...");
+		Serial.println("Saving credentials to Preferences...");
 		String tempssid = ESPUI.getControl(wifi_ssid_text)->value;
 		String temppass = ESPUI.getControl(wifi_pass_text)->value;
 		Serial.println(tempssid);
 		Serial.println(temppass);
-		
-		unsigned int i;
-		EEPROM.begin(100);
-		for(i = 0; i < 96; i++) {
-			EEPROM.write(i, 0x00);
-		}
+
+		Preferences preferences;
+		preferences.begin("wifi", false);
 
 		if (tempssid.length() <= 32 && temppass.length() <= 64) {
-			EEPROM.writeString(0, tempssid);
-			EEPROM.writeString(33, temppass);
+			preferences.putString("ssid", tempssid);
+			preferences.putString("password", temppass);
+			Serial.println("Credentials saved successfully.");
 		} else {
 			Serial.println("Error: SSID or password exceeds maximum length.");
 		}
-		
-		delay(1000);
-		EEPROM.end();
+
+		preferences.end();
 	}
 }
 

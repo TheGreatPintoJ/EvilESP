@@ -1,8 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-#define AP_SSID "ESP32-Deauther"
-#define AP_PASS "esp32wroom32"
+#define AP_SSID "EvilESP Hotspot"
+#define AP_PASS "evilesp32"
 #define SERIAL_DEBUG
 #define CHANNEL_MAX 13
 #define NUM_FRAMES_PER_DEAUTH 16

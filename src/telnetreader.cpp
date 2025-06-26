@@ -149,7 +149,7 @@ void telnetHandleCommand(String inputCMD){
         String bssid = WiFi.BSSIDstr(inputCMD.toInt());
         TelnetStream.print("Deauthing device with BSSID: "); 
         TelnetStream.println(bssid);
-        start_deauth(0, 0x0004);
+        start_deauth(0, 0 ,0x0004);
         waitForChar('c', 300000);
         stop_deauth();
     } else if (inputCMD.startsWith("sleep")){

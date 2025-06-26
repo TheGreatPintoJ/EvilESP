@@ -27,7 +27,7 @@ typedef struct {
 } wifi_packet_t;
 
 const wifi_promiscuous_filter_t filt = {
-  .filter_mask = WIFI_PROMIS_FILTER_MASK_MGMT | WIFI_PROMIS_FILTER_MASK_DATA
+  .filter_mask = WIFI_PROMIS_FILTER_MASK_ALL//WIFI_PROMIS_FILTER_MASK_MGMT | WIFI_PROMIS_FILTER_MASK_DATA
 };
 
 #endif

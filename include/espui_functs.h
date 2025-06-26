@@ -20,6 +20,8 @@ void updateBLESpamStatus(bool active);
 void blespamSwitchCallback(Control *sender, int type);
 void scanBLECallback(Control *sender, int type);
 void connectBLECallback(Control *sender, int type);
+void keyPressCallback(Control *sender, int type);
+void advertCallback(Control *sender, int type);
 
 // WiFi-based callbacks
 void setForceHotspot(bool value);

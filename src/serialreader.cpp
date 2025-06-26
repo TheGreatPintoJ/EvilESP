@@ -81,14 +81,16 @@ void serialHandleCommand(String inputCMD){
       inputCMD.replace("deauth", "");
       inputCMD.trim();
       String bssid = WiFi.BSSIDstr(inputCMD.toInt());
+      uint16_t reason = 1;
+      int networkNum = inputCMD.toInt();
       Serial.print("Deauthing device with BSSID: "); 
       Serial.println(bssid);
-      start_deauth(0, 0x0004);
+      start_deauth(networkNum, 0, reason);
       waitForChar('c', 300000);
       stop_deauth();
     } else if (inputCMD == "help") {
       Serial.println("Valid commands:");
-      Serial.println("blespam   reboot   forcehotsot   help");
+      Serial.println("blespam   reboot   forcehotsot   wifi   deauth   help");
     } else {
       Serial.println("Unknown command: " + inputCMD);
       Serial.println("Type 'help' for a list of valid commands");

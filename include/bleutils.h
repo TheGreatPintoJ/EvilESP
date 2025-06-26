@@ -10,7 +10,8 @@ namespace CustomBLEUtils{
     bool isValidMacAddress(const std::string& mac);
     bool pairWithDevice(std::string macAddress);
     bool connectToDevice(std::string macAddress);
-    void startAdvertising();
+    void disconnectDevice(std::string macAddress);
+    void startAdvertising(String name, int type);
     void stopAdvertising();
     std::vector<std::string> getConnectedDevices();
     std::vector<std::string> getPairedDevices();

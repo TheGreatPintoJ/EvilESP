@@ -43,7 +43,8 @@ void connectWiFi() {
 
     preferences.end();
 
-    Serial.println("Read string from Preferences (pass): " + pass);
+    Serial.println("(ssid): " + ssid);
+    Serial.println("(pass): " + pass);
 
     if(!FORCE_USE_HOTSPOT){
         Serial.println("Attempting to connect to WiFi...");

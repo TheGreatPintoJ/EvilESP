@@ -11,11 +11,20 @@ uint16_t wifi_ssid_text, wifi_pass_text;
 uint16_t mainLabel, mainSwitcher, mainSlider, mainText, mainNumber, mainScrambleButton, mainTime;
 uint16_t styleButton, styleLabel, styleSwitcher, styleSlider, styleButton2, styleLabel2, styleSlider2;
 uint16_t graph;
-uint16_t blespamStatusDash, blespamStatus, blespamSwitch, bleScanSelector, bleScanButton, bleConnectButton, bleShowMacSwitch;
+uint16_t blespamStatusDash, blespamStatus, blespamSwitch, bleScanSelector, bleScanButton, bleConnectButton, bleShowMacSwitch, adLabel, adText, adSelector, adSwitch;
 uint16_t deauthPanel;
 volatile bool updates = false;
 
+std::vector<String> adOptions = {
+	"Keyboard",
+	"Mouse",
+	"Keyboard & Mouse",
+	"Gamepad/Controller"
+};
+
 std::vector<BLEAdvertisedDevice> scannedBLEDevices;
+
+int getSelectedOptionIndex(uint16_t selectControlId);
 
 void setUpESPUI() {
 	//Turn off verbose debugging
@@ -37,12 +46,25 @@ void setUpESPUI() {
 	blespamStatus = ESPUI.addControl(Label, "BLESpam status", "Off", Peterriver, bluetoothTab, generalCallback);
 	blespamSwitch = ESPUI.addControl(Switcher, "", (String)BLESpamActive, ControlColor::Peterriver, blespamStatus, blespamSwitchCallback);
 	ESPUI.addControl(Separator, "General BLE controls", "", None, bluetoothTab);
-	bleScanSelector = ESPUI.addControl(Select, "BLE Devices", "Scan below", Peterriver, bluetoothTab);
+	bleScanSelector = ESPUI.addControl(Select, "BLE Devices", "Scan below", Peterriver, bluetoothTab, textCallback);
 	bleScanButton = ESPUI.addControl(Button, "", "Scan", Peterriver, bleScanSelector, scanBLECallback);
 	bleConnectButton = ESPUI.addControl(Button, "", "Connect", Peterriver, bleScanSelector, connectBLECallback);
 	bleShowMacSwitch = ESPUI.addControl(Switcher, "Show MAC", "0", Peterriver, bleScanSelector, textCallback);
 
-	ESPUI.setElementStyle(bleShowMacSwitch, "position: absolute; margin-top:6px;"); //Move the MAC switch down a bit to make it look better
+	adLabel = ESPUI.addControl(Label, "Advertisement", "Off", Peterriver, bluetoothTab);
+	adText = ESPUI.addControl(Text, "EvilESP", "EvilESP", Peterriver, adLabel);
+
+	adSelector = ESPUI.addControl(Select, "Advert Type (DEBUG)", "Keyboard", Peterriver, adLabel, textCallback); // DEBUG: unique label
+	ESPUI.updateSelect(adSelector, "");
+	for(String entry : adOptions){
+		ESPUI.addControl(Option, strdup(entry.c_str()), entry, Peterriver, adSelector);
+	}
+
+	adSwitch = ESPUI.addControl(Switcher, "Advertising", "0", None, adLabel, advertCallback);
+
+	auto keyboardControl = ESPUI.addControl(Button, "Keyboard", "q", None, bluetoothTab, keyPressCallback);
+
+	ESPUI.setElementStyle(bleShowMacSwitch, "position: absolute; margin-top:6px;");
 	
 	/*
 	 * Tab: WiFi
@@ -98,6 +120,32 @@ void setUpESPUI() {
 	ESPUI.jsonReload();
 }
 
+void keyPressCallback(Control *sender, int type){
+	String buttonText = sender->value;
+	if(type == B_DOWN){
+		//keyboard press that key
+	} else if(type == B_UP){
+		//keyboard release that key
+	}
+}
+
+void advertCallback(Control *sender, int type){
+	String selectedValue = ESPUI.getControl(adSelector)->value;
+	int selectorNum = -1;
+	for (int i = 0; i < adOptions.size(); ++i) {
+		if (adOptions[i] == selectedValue) {
+			selectorNum = i;
+			break;
+		}
+	}
+	String deviceName = ESPUI.getControl(adText)->value;
+	if(type == S_INACTIVE){
+		CustomBLEUtils::stopAdvertising();
+	} else if(type == S_ACTIVE){
+		CustomBLEUtils::startAdvertising(deviceName, selectorNum);
+	}
+}
+
 void scanWiFi(Control *sender, int type){
 	if(type == B_DOWN){
 		Serial.println("Scanning for networks...");
@@ -130,7 +178,7 @@ void startDeauthCallback(Control *sender, int type){
 				Serial.println(ssid);
 				Serial.print("BSSID: ");
 				Serial.println(bssid);
-				start_deauth(selectedIndex, (uint16_t)0x0001); // Start deauth attack
+				start_deauth(selectedIndex, 0, (uint16_t)0x0001); // Start deauth attack
 			} else {
 				Serial.println("Invalid network selected.");
 			}
@@ -175,7 +223,7 @@ void scanBLECallback(Control *sender, int type){
 	if(type == B_UP){
 		bool showMac = (ESPUI.getControl(bleShowMacSwitch)->value == "1");
 		scannedBLEDevices.clear();
-		scannedBLEDevices = CustomBLEUtils::scanForDevices(2);
+		scannedBLEDevices = CustomBLEUtils::scanForDevices(2.5);
 		ESPUI.updateSelect(bleScanSelector, "");
 		for (int i = 0; i < scannedBLEDevices.size(); i++) {
 			BLEAdvertisedDevice device = scannedBLEDevices[i];
@@ -197,6 +245,7 @@ void scanBLECallback(Control *sender, int type){
 
 void connectBLECallback(Control *sender, int type){
 	if(type == B_UP){
+		String buttonText = ESPUI.getControl(bleConnectButton)->value.c_str();
 		std::string selectedDevice = ESPUI.getControl(bleScanSelector)->value.c_str();
 		std::vector<BLEAddress> addresses = CustomBLEUtils::getAddresses(scannedBLEDevices);
 		if(!CustomBLEUtils::isValidMacAddress(selectedDevice)){
@@ -207,15 +256,20 @@ void connectBLECallback(Control *sender, int type){
 				}
 			}
 		}
-		Serial.print("Connecting to device: ");
-		Serial.println(selectedDevice.c_str());
-		if(CustomBLEUtils::connectToDevice(selectedDevice)){
-			Serial.println("Connected successfully.");
-			ESPUI.updateLabel(bleConnectButton, "Connected");
-			ESPUI.updateLabel(bleConnectButton, "Disconnect");
-		} else {
-			Serial.println("Failed to connect.");
-			ESPUI.updateLabel(bleConnectButton, "Failed to connect");
+		if(buttonText == "Connect"){
+			//Serial.print("Connecting to device: ");
+			Serial.println(selectedDevice.c_str());
+			if(CustomBLEUtils::connectToDevice(selectedDevice)){
+				//Serial.println("Connected successfully.");
+				ESPUI.updateLabel(bleConnectButton, "Connected");
+				ESPUI.updateLabel(bleConnectButton, "Disconnect");
+			} else {
+				Serial.println("Failed to connect.");
+				ESPUI.updateLabel(bleConnectButton, "Failed to connect");
+			}
+		} else if (buttonText == "Disconnect"){
+			CustomBLEUtils::disconnectDevice(selectedDevice);
+			ESPUI.updateLabel(bleConnectButton, "Connect");
 		}
 		
 	} else if(type == B_DOWN);

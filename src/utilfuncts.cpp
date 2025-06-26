@@ -30,4 +30,4 @@ void waitForChar(char waitChar, unsigned long timeoutMs) {
 		}
 	}
 	Serial.println("Timeout waiting for character.");
-  }
+}

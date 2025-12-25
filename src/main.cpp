@@ -1,11 +1,8 @@
 #include <Arduino.h>
-#include <TelnetStream.h>
 
 #include "wifi_MGMNT.h"
 #include "serialreader.h"
-#include "espui_functs.h"
 #include "evilblefuncts.h"
-#include "telnetreader.h"
 
 bool SLOWBOOT = true;
 long SLOWBOOT_DELAY = 1;
@@ -22,15 +19,12 @@ void setup() {
   Serial.println("Starting EvilESP");
 
   connectWiFi();
-  TelnetStream.begin();
   EvilJuiceSetup();
-  setUpESPUI();
 
   Serial.print("> ");
 }
 
 void loop() {
   serialCommandRead();
-  telnetCommandRead();
   if(BLESpamActive) EvilJuiceLoop();
 }
